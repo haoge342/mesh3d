@@ -1,27 +1,45 @@
 #include "Spring.h"
 #include <cmath>
 
-Spring::Spring(Particle* a, Particle* b, float k)
-    : p1(a), p2(b), stiffness(k) {
-    restLength = sqrt(pow(b->position.x - a->position.x, 2) +pow(b->position.y - a->position.y, 2) +pow(b->position.z - a->position.z, 2));
+Vector3 SubstractVector3(const Vector3& a, const Vector3& b) {
+	return { a.x - b.x, a.y - b.y, a.z - b.z };
 }
 
-void Spring::ApplySpringForce() {
-	// point from p1 to p2. meaning p1 is the origin
-    const Vector3 diff = { p2->position.x - p1->position.x,
-                     p2->position.y - p1->position.y,
-                     p2->position.z - p1->position.z };
+Vector3 MultiplyVector3(float l, const Vector3& v) {
+	return { l * v.x, l * v.y, l * v.z };
+}
 
-    float length = sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
+Spring::Spring(Particle* a, Particle* b, float k): 
+	pA(a), 
+	pB(b), 
+	stiffness(k), 
+	initialDiff(*b - *a)
+{};
 
-    const float forceMagnitude = stiffness * (length - restLength);
+void Spring::ApplySpringForce(float dampingFactor) {
+	// HOOK LAW. F = -k * (x - x0)
+	const Vector3 currParticalsDiff = *pB - *pA; // p1 is the origin
+	const Vector3 delta = SubstractVector3(currParticalsDiff, initialDiff);
+	const Vector3 springForce = MultiplyVector3(-stiffness, delta);
 
 
+	Vector3 velocityDiff = SubstractVector3(pB->velocity, pA->velocity);
 
-    const Vector3 force = { forceMagnitude * (diff.x / length),
-                      forceMagnitude * (diff.y / length),
-					  forceMagnitude* (diff.z / length) };
+	const float DAMPING_FACTOR = dampingFactor; // Lower value for stability
 
-	p1->ApplyForce(force); // p1 is origin
-    p2->ApplyForce({ -force.x, -force.y, -force.z });  // Apply opposite force
+	// Project velocity difference onto spring direction
+	float dampingAmount = (velocityDiff.x * delta.x +
+		velocityDiff.y * delta.y +
+		velocityDiff.z * delta.z) /
+		(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z + 1e-6f); // Avoid div by zero
+
+	Vector3 dampingForce = MultiplyVector3(-DAMPING_FACTOR * dampingAmount, delta);
+
+	// **Total Force = Spring Force + Damping**
+	Vector3 totalForce = { springForce.x + dampingForce.x,
+						   springForce.y + dampingForce.y,
+						   springForce.z + dampingForce.z };
+
+	pA->ApplyForce(MultiplyVector3(-1, totalForce)); // p1 is origin
+    pB->ApplyForce(totalForce); // push/pull side pB
 }

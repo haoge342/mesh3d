@@ -9,9 +9,10 @@ namespace mesh3d{
         int width, height;
         std::vector<Particle> particles;
         std::vector<Spring> springs;
+		float springStiffness = 10.0f;
 
-        Mesh(int w, int h, float spacing);
-        void Update(float dt);
+        Mesh(int w, int h, float spacing, float stiff);
+        void Update(float dt, float currStiffness, float dampingFactor);
         void Draw();
     };
 } // namespace mesh3d

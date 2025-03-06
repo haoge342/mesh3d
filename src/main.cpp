@@ -1,47 +1,72 @@
 ﻿#include "raylib.h"
 #include "Mesh.h"
 #include <string>
+#include <iostream>
 
 const float ANIMATION_SPEED_STEP = 0.05f;
 
 void DrawCoordSystem(void);
 
+std::string formateFloat(float f) {
+	char buffer[20];
+	std::sprintf(buffer, "%.2f", f);
+	return std::string(buffer);
+}
+
 int main() {
     const int screenWidth = 800;
     const int screenHeight = 600;
-	float animationSpeed = 0.05f;
+	float animationSpeed = 1.0f;
+	float userStiffness = 10.0f;
+	float userDampingFactor = 0.5f;
 	std::string msg = "Press r to restart simulation";
 
-	bool isRunning = false;
+	bool isRunning = true;
 
     InitWindow(screenWidth, screenHeight, "3D Cloth Simulation");
 
     Camera camera = { { 15.0f, 5.0f, 15.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE };
 
-    mesh3d::Mesh cloth(10, 10, 1.0f);  // 10x10 cloth
+    mesh3d::Mesh cloth(10, 10, 1.0f, userStiffness);  // 10x10 cloth
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
 
 		// increase or decrease animation speed
 		if (IsKeyPressed(KEY_UP)) { animationSpeed += ANIMATION_SPEED_STEP; }
-		if (IsKeyPressed(KEY_DOWN)) { 
+		if (IsKeyPressed(KEY_DOWN)) {
 			if (animationSpeed > ANIMATION_SPEED_STEP) animationSpeed -= ANIMATION_SPEED_STEP;
 		}
+
+		// increase or decrease stiffness
+		if (IsKeyPressed(KEY_M)) { userStiffness += 1.0f; }
+		if (IsKeyPressed(KEY_N)) {
+			if (userStiffness > 1.0f) userStiffness -= 1.0f;
+		}
 		
+		// increase or decrease damping factor
+		if (IsKeyPressed(KEY_P)) { userDampingFactor += 0.5f; }
+		if (IsKeyPressed(KEY_O)) {
+			if (userDampingFactor > 0.5f) userDampingFactor -= 0.5f;
+		}
+
+		// zoom in/out camera, using w s keys
+		if (IsKeyDown(KEY_W)) { camera.position.y += 0.1f; camera.position.x += 0.1f; camera.position.z += 0.1f; }
+		if (IsKeyDown(KEY_S)) { camera.position.y -= 0.1f; camera.position.x -= 0.1f; camera.position.z -= 0.1f; }
+
 		// if window moves, then stop simulation
 		if (IsWindowResized() || !IsWindowFocused) { isRunning = false; }
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
-			cloth = mesh3d::Mesh(10, 10, 1.0f); 
+			cloth = mesh3d::Mesh(10, 10, 1.0f, userStiffness); 
 			msg = "Reseted!";
 		}
 
 		if (isRunning) {
 			//UpdateCamera(&camera, CAMERA_FREE);
 			float dt = GetFrameTime() * animationSpeed;
-			cloth.Update( dt );
+			cloth.Update( dt, userStiffness, userDampingFactor);
 		}
 
 		//#region Draw
@@ -57,8 +82,11 @@ int main() {
         // Text
 		DrawText(isRunning ? "Running..." : "Paused (Press Enter/Space to continue)", 20, 20, 20, BLACK);
 		DrawText(msg.c_str(), 20, 40, 20, BLACK);
-		DrawText(("FPS: " + std::to_string(GetFPS())).c_str(), 20, 60, 20, BLACK);
-		DrawText(std::to_string(animationSpeed).c_str(), 20, 80, 20, BLACK);
+		DrawText(("FPS: " + formateFloat(GetFPS())).c_str(), 20, 60, 20, BLACK);
+		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 80, 20, BLACK);
+		DrawText(("Stiffness: " + formateFloat(userStiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
+		DrawText(("Damping Factor: " + formateFloat(userDampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
+		DrawText("Move camera: W S", 20, 140, 20, BLACK);
 
 		EndDrawing();
 		//#endregion

@@ -3,10 +3,10 @@
 
 class Spring {
 public:
-    Particle* p1, * p2;
-    float restLength;
+    Particle* pA, * pB;
+    Vector3 initialDiff = { 0.0f, 0.0f, 0.0f };
     float stiffness; // the larger, the stronger
 
     Spring(Particle* a, Particle* b, float k);
-    void ApplySpringForce();
+    void ApplySpringForce(float dampingFactor);
 };
