@@ -14,20 +14,21 @@ std::string formateFloat(float f) {
 }
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    const int screenWidth = 1024;
+    const int screenHeight = 768;
 	float animationSpeed = 1.0f;
 	float userStiffness = 10.0f;
 	float userDampingFactor = 0.5f;
 	std::string msg = "Press r to restart simulation";
 
-	bool isRunning = true;
+	bool isRunning = false;
 
     InitWindow(screenWidth, screenHeight, "3D Cloth Simulation");
+	SetMousePosition(screenWidth / 2, screenHeight / 2);
 
-    Camera camera = { { 15.0f, 5.0f, 15.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE };
+    Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-    mesh3d::Mesh cloth(10, 10, 1.0f, userStiffness);  // 10x10 cloth
+    mesh3d::Mesh cloth(11, 11, 1.0f, userStiffness);  // 10x10 cloth
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
@@ -50,12 +51,12 @@ int main() {
 			if (userDampingFactor > 0.5f) userDampingFactor -= 0.5f;
 		}
 
-		// zoom in/out camera, using w s keys
-		if (IsKeyDown(KEY_W)) { camera.position.y += 0.1f; camera.position.x += 0.1f; camera.position.z += 0.1f; }
-		if (IsKeyDown(KEY_S)) { camera.position.y -= 0.1f; camera.position.x -= 0.1f; camera.position.z -= 0.1f; }
+		// let mouse control camera
+		UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 
 		// if window moves, then stop simulation
 		if (IsWindowResized() || !IsWindowFocused) { isRunning = false; }
+
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
@@ -86,7 +87,6 @@ int main() {
 		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 80, 20, BLACK);
 		DrawText(("Stiffness: " + formateFloat(userStiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
 		DrawText(("Damping Factor: " + formateFloat(userDampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
-		DrawText("Move camera: W S", 20, 140, 20, BLACK);
 
 		EndDrawing();
 		//#endregion

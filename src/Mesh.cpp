@@ -5,7 +5,7 @@ const float HEIGHT = 0.0f;
 
 namespace mesh3d {
     Mesh::Mesh(int w, int h, float spacing, float stiff) : width(w), height(h), springStiffness(stiff) {
-        const Vector3 ORIGIN = { w * spacing / 2, HEIGHT, h * spacing / 2 };
+        const Vector3 ORIGIN = { (w - 1) * spacing / 2, HEIGHT, (h - 1) * spacing / 2 };
 
         // Create particles
         for (int y = 0; y < h; y++) {
