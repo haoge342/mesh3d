@@ -1,6 +1,6 @@
 #include "Particle.h"
 
-Particle::Particle(Vector3 pos, bool fixed) : position(pos), isFixed(fixed) {}
+Particle::Particle(Vector3 pos, bool fixed, float mass) : position(pos), isFixed(fixed), mass(mass){}
 
 void Particle::ApplyForce(Vector3 f) {
     if (!isFixed) force = { force.x + f.x, force.y + f.y, force.z + f.z };

@@ -11,8 +11,8 @@ namespace mesh3d{
         std::vector<Spring> springs;
 		float springStiffness = 10.0f;
 
-        Mesh(int w, int h, float spacing, float stiff);
-        void Update(float dt, float currStiffness, float dampingFactor);
+        Mesh(int w, int h, float spacing, float stiff, float pMass);
+        bool Update(float dt, float currStiffness, float dampingFactor);
         void Draw();
     };
 } // namespace mesh3d

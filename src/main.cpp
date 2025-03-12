@@ -4,6 +4,8 @@
 #include <iostream>
 
 const float ANIMATION_SPEED_STEP = 0.05f;
+const int GRID_SIZE = 31;
+const float MASS = 0.1f;
 
 void DrawCoordSystem(void);
 
@@ -28,7 +30,7 @@ int main() {
 
     Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-    mesh3d::Mesh cloth(11, 11, 1.0f, userStiffness);  // 10x10 cloth
+    mesh3d::Mesh cloth(GRID_SIZE, GRID_SIZE, 0.5f, userStiffness, MASS);  // 10x10 cloth
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
@@ -46,9 +48,9 @@ int main() {
 		}
 		
 		// increase or decrease damping factor
-		if (IsKeyPressed(KEY_P)) { userDampingFactor += 0.5f; }
+		if (IsKeyPressed(KEY_P)) { userDampingFactor += 0.1f; }
 		if (IsKeyPressed(KEY_O)) {
-			if (userDampingFactor > 0.5f) userDampingFactor -= 0.5f;
+			if (userDampingFactor > 0.1f) userDampingFactor -= 0.1f;
 		}
 
 		// let mouse control camera
@@ -60,14 +62,17 @@ int main() {
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
-			cloth = mesh3d::Mesh(10, 10, 1.0f, userStiffness); 
+			cloth = mesh3d::Mesh(GRID_SIZE, GRID_SIZE, 1.0f, userStiffness, MASS); 
 			msg = "Reseted!";
 		}
 
 		if (isRunning) {
 			//UpdateCamera(&camera, CAMERA_FREE);
 			float dt = GetFrameTime() * animationSpeed;
-			cloth.Update( dt, userStiffness, userDampingFactor);
+			if (!cloth.Update(dt, userStiffness, userDampingFactor)) {
+				isRunning = false;
+				msg = "Simulation failed!";
+			}
 		}
 
 		//#region Draw
