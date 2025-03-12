@@ -19,8 +19,8 @@ int main() {
     const int screenWidth = 1024;
     const int screenHeight = 768;
 	float animationSpeed = 1.0f;
-	float userStiffness = 10.0f;
-	float userDampingFactor = 0.5f;
+	float userStiffness = 20.0f;
+	float userDampingFactor = 0.1f;
 	std::string msg = "Press r to restart simulation";
 
 	bool isRunning = false;

@@ -1,6 +1,10 @@
 #include "Mesh.h"
 #include "raylib.h"
 #include <iostream>
+#include <future>
+#include <vector>
+
+const bool IS_MULTITHREADED = true;
 
 const float HEIGHT = 0.0f;
 
@@ -32,17 +36,36 @@ namespace mesh3d {
     bool Mesh::Update(float dt, float currStiffness, float userDampingFactor = 10.0f) {
         if (dt <= 0.0f) return true;
 
-        for (auto& particle : particles) {
-            particle.ApplyForce(Vector3{ 0, -9.8f, 0 });  // Gravity
+        if (IS_MULTITHREADED) {
+            // apply forces to particles in parallel
+            std::vector<std::future<void>> futures;
+            for (auto& particle : particles) {
+                futures.push_back(std::async(std::launch::async, [&particle, dt]() {
+                    particle.ApplyForce(Vector3{ 0, -9.8f, 0 });  // Gravity
 
-			// air resistance
-			const float AIR_RESISTANCE = -0.001f;
-			particle.ApplyForce(Vector3{ 
-                AIR_RESISTANCE * particle.velocity.x * particle.velocity.x, 
-                AIR_RESISTANCE * particle.velocity.y * particle.velocity.y,
-                AIR_RESISTANCE * particle.velocity.z * particle.velocity.z
-               });
-            particle.Update(dt);
+                    // air resistance
+                    const float AIR_RESISTANCE = -0.001f;
+                    particle.ApplyForce(Vector3{
+                        AIR_RESISTANCE * particle.velocity.x * particle.velocity.x,
+                        AIR_RESISTANCE * particle.velocity.y * particle.velocity.y,
+                        AIR_RESISTANCE * particle.velocity.z * particle.velocity.z
+                        });
+                    particle.Update(dt);
+                    }));
+            }
+        }
+        else {
+			for (auto& particle : particles) {
+				particle.ApplyForce(Vector3{ 0, -9.8f, 0 });  // Gravity
+				// air resistance
+				const float AIR_RESISTANCE = -0.001f;
+				particle.ApplyForce(Vector3{
+					AIR_RESISTANCE * particle.velocity.x * particle.velocity.x,
+					AIR_RESISTANCE * particle.velocity.y * particle.velocity.y,
+					AIR_RESISTANCE * particle.velocity.z * particle.velocity.z
+					});
+				particle.Update(dt);
+			}
         }
 
         for (auto& spring : springs) {
