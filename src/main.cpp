@@ -24,6 +24,7 @@ int main() {
 	const int screenHeight = 768;
 
 	bool isRunning = false;
+	bool isCameraFree = true;
 
     InitWindow(screenWidth, screenHeight, "3D Cloth Simulation");
 	SetMousePosition(screenWidth / 2, screenHeight / 2);
@@ -54,7 +55,12 @@ int main() {
 		}
 
 		// let mouse control camera
-		UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+		if(isCameraFree) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+		if (IsKeyPressed(KEY_C)) {
+			isCameraFree = !isCameraFree;
+			if (isCameraFree) msg = "Camera free!";
+			else msg = "Camera locked!";
+		}
 
 		// if window moves, then stop simulation
 		if (IsWindowResized() || !IsWindowFocused) { isRunning = false; }
@@ -92,12 +98,15 @@ int main() {
         EndMode3D();
 
         // Text
-		DrawText(isRunning ? "Running..." : "Paused (Press Enter/Space to continue)", 20, 20, 20, BLACK);
-		DrawText(msg.c_str(), 20, 40, 20, BLACK);
-		DrawText(("FPS: " + formateFloat(GetFPS())).c_str(), 20, 60, 20, BLACK);
-		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 80, 20, BLACK);
-		DrawText(("Stiffness: " + formateFloat(loadedConfig.stiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
-		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
+		DrawText(isRunning ? "Running..." : "Paused (Press Enter/Space to continue)", 20, 20, 20, RED);
+		DrawText(msg.c_str(), 20, 20*2, 20, BLACK);
+		DrawText(("FPS: " + formateFloat(GetFPS())).c_str(), 20, 20*4, 20, BLACK);
+		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 20*5, 20, BLACK);
+		DrawText("Press C to lock/free camera", 20, 20 * 6, 20, BLACK);
+
+		DrawText(("Stiffness: " + formateFloat(loadedConfig.stiffness) + " | N -> M").c_str(), 20, screenHeight - 20*2, 20, BLACK);
+		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, screenHeight - 20*3, 20, BLACK);
+		DrawText(("Partial Mass: " + formateFloat(MASS)).c_str(), 20, screenHeight - 20 * 4, 20, BLACK);
 		EndDrawing();
 		//#endregion
     }
