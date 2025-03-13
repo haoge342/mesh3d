@@ -3,13 +3,48 @@
 #include <iostream>
 #include <future>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 const bool IS_MULTITHREADED = true;
 
 const float HEIGHT = 0.0f;
 
 namespace mesh3d {
-    Mesh::Mesh(int w, int h, float spacing, float stiff, float pMass) : width(w), height(h), springStiffness(stiff) {
+	Config LoadMeshConfig(const std::string& filename) {
+		Config config;
+		std::ifstream file(filename);
+        std::string line;
+		while (std::getline(file, line)) {
+			std::istringstream iss(line);
+            std::string key;
+			if (std::getline(iss, key, '=')) {
+				std::string value;
+				if (std::getline(iss, value)) {
+					if (key == "width") config.width = std::stoi(value);
+					else if (key == "height") config.height = std::stoi(value);
+					else if (key == "spacing") config.spacing = std::stof(value);
+					else if (key == "stiffness") config.stiffness = std::stof(value);
+					else if (key == "particleMass") config.particleMass = std::stof(value);
+					else if (key == "dampingFactor") config.dampingFactor = std::stof(value);
+				}
+			}
+		}
+		return config;
+	}
+
+    void WriteConfig(const std::string& filename, const Config& config) {
+        std::ofstream file(filename);
+		file << "width=" << config.width << "\n";
+        file << "height=" << config.height << "\n";
+        file << "spacing=" << config.spacing << "\n";
+        file << "stiffness=" << config.stiffness << "\n";
+        file << "particleMass=" << config.particleMass << "\n";
+		file << "dampingFactor=" << config.dampingFactor << "\n";
+    }
+
+    Mesh::Mesh(int w, int h, float spacing, float stiff, float pMass, float dFactor) : width(w), height(h), springStiffness(stiff), dampingFactor(dFactor) {
         const Vector3 ORIGIN = { (w - 1) * spacing / 2, HEIGHT, (h - 1) * spacing / 2 };
 
 		particles.reserve(w * h);
@@ -33,7 +68,7 @@ namespace mesh3d {
         }
     }
 
-    bool Mesh::Update(float dt, float currStiffness, float userDampingFactor = 10.0f) {
+    bool Mesh::Update(float dt) {
         if (dt <= 0.0f) return true;
 
         if (IS_MULTITHREADED) {
@@ -69,8 +104,8 @@ namespace mesh3d {
         }
 
         for (auto& spring : springs) {
-			spring.stiffness = currStiffness; // listen on the stiffness changes
-            spring.ApplySpringForce(userDampingFactor); // hook law
+			spring.stiffness = springStiffness; // listen on the stiffness changes
+            spring.ApplySpringForce(dampingFactor); // hook law
         }
 
         // debug
@@ -83,6 +118,14 @@ namespace mesh3d {
 
 		return true;
     }
+
+	void Mesh::SetStiffness(float stiff) {
+		springStiffness = stiff;
+	}
+
+	void Mesh::SetDampingFactor(float dFactor) {
+		dampingFactor = dFactor;
+	}
 
     void Mesh::Draw() {
 

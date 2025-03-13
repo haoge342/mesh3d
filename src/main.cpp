@@ -16,12 +16,12 @@ std::string formateFloat(float f) {
 }
 
 int main() {
-    const int screenWidth = 1024;
-    const int screenHeight = 768;
+	mesh3d::Config loadedConfig = mesh3d::LoadMeshConfig("config.txt");
 	float animationSpeed = 1.0f;
-	float userStiffness = 20.0f;
-	float userDampingFactor = 0.1f;
 	std::string msg = "Press r to restart simulation";
+
+	const int screenWidth = 1024;
+	const int screenHeight = 768;
 
 	bool isRunning = false;
 
@@ -30,7 +30,7 @@ int main() {
 
     Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-    mesh3d::Mesh cloth(GRID_SIZE, GRID_SIZE, 0.5f, userStiffness, MASS);  // 10x10 cloth
+	mesh3d::Mesh cloth = mesh3d::Mesh(loadedConfig.width, loadedConfig.height, loadedConfig.spacing, loadedConfig.stiffness, loadedConfig.particleMass, loadedConfig.dampingFactor);
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
@@ -42,15 +42,15 @@ int main() {
 		}
 
 		// increase or decrease stiffness
-		if (IsKeyPressed(KEY_M)) { userStiffness += 1.0f; }
+		if (IsKeyPressed(KEY_M)) { loadedConfig.stiffness += 1.0f; }
 		if (IsKeyPressed(KEY_N)) {
-			if (userStiffness > 1.0f) userStiffness -= 1.0f;
+			if (loadedConfig.stiffness > 1.0f) loadedConfig.stiffness -= 1.0f;
 		}
 		
 		// increase or decrease damping factor
-		if (IsKeyPressed(KEY_P)) { userDampingFactor += 0.1f; }
+		if (IsKeyPressed(KEY_P)) { loadedConfig.dampingFactor += 0.1f; }
 		if (IsKeyPressed(KEY_O)) {
-			if (userDampingFactor > 0.1f) userDampingFactor -= 0.1f;
+			if (loadedConfig.dampingFactor > 0.1f) loadedConfig.dampingFactor -= 0.1f;
 		}
 
 		// let mouse control camera
@@ -59,17 +59,22 @@ int main() {
 		// if window moves, then stop simulation
 		if (IsWindowResized() || !IsWindowFocused) { isRunning = false; }
 
+		// save config to the file
+		if (IsKeyPressed(KEY_S)) {
+			mesh3d::WriteConfig("config.txt", loadedConfig);
+			msg = "Config saved!";
+		}
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
-			cloth = mesh3d::Mesh(GRID_SIZE, GRID_SIZE, 1.0f, userStiffness, MASS); 
+			cloth = mesh3d::Mesh(loadedConfig.width, loadedConfig.height, loadedConfig.spacing, loadedConfig.stiffness, loadedConfig.particleMass, loadedConfig.dampingFactor);
 			msg = "Reseted!";
 		}
 
 		if (isRunning) {
 			//UpdateCamera(&camera, CAMERA_FREE);
 			float dt = GetFrameTime() * animationSpeed;
-			if (!cloth.Update(dt, userStiffness, userDampingFactor)) {
+			if (!cloth.Update(dt)) {
 				isRunning = false;
 				msg = "Simulation failed!";
 			}
@@ -90,8 +95,8 @@ int main() {
 		DrawText(msg.c_str(), 20, 40, 20, BLACK);
 		DrawText(("FPS: " + formateFloat(GetFPS())).c_str(), 20, 60, 20, BLACK);
 		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 80, 20, BLACK);
-		DrawText(("Stiffness: " + formateFloat(userStiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
-		DrawText(("Damping Factor: " + formateFloat(userDampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
+		DrawText(("Stiffness: " + formateFloat(loadedConfig.stiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
+		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
 
 		EndDrawing();
 		//#endregion
