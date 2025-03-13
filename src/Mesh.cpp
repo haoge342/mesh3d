@@ -44,26 +44,26 @@ namespace mesh3d {
 		file << "dampingFactor=" << config.dampingFactor << "\n";
     }
 
-    Mesh::Mesh(int w, int h, float spacing, float stiff, float pMass, float dFactor) : width(w), height(h), springStiffness(stiff), dampingFactor(dFactor) {
-        const Vector3 ORIGIN = { (w - 1) * spacing / 2, HEIGHT, (h - 1) * spacing / 2 };
+    Mesh::Mesh(const Config& c): width(c.width), height(c.height), springStiffness(c.stiffness), dampingFactor(c.dampingFactor) {
+        const Vector3 ORIGIN = { (c.width - 1) * c.spacing / 2, HEIGHT, (c.height - 1) * c.spacing / 2 };
 
-		particles.reserve(w * h);
-		springs.reserve((w - 1) * h + (h - 1) * w);
+		particles.reserve(c.width * c.height);
+		springs.reserve((c.width - 1) * c.height + (c.height - 1) * c.width);
 
         // Create particles
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                bool fixed = (y == 0 || x == 0 || y == h - 1 || x == w - 1);  // Fix top row
-                particles.emplace_back(Vector3{ x * spacing - ORIGIN.x, 0 - ORIGIN.y, y * spacing - ORIGIN.z }, fixed, pMass);
+        for (int y = 0; y < c.height; y++) {
+            for (int x = 0; x < c.width; x++) {
+                bool fixed = (y == 0 || x == 0 || y == c.height - 1 || x == c.width - 1);  // Fix top row
+                particles.emplace_back(Vector3{ x * c.spacing - ORIGIN.x, 0 - ORIGIN.y, y * c.spacing - ORIGIN.z }, fixed, c.particleMass);
             }
         }
 
         // Create springs
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                int idx = y * w + x;
-                if (x < w - 1) springs.emplace_back(&particles[idx], &particles[idx + 1], stiff); // Horizontal
-                if (y < h - 1) springs.emplace_back(&particles[idx], &particles[idx + w], stiff); // Vertical
+        for (int y = 0; y < c.height; y++) {
+            for (int x = 0; x < c.width; x++) {
+                int idx = y * c.width + x;
+                if (x < c.width - 1) springs.emplace_back(&particles[idx], &particles[idx + 1], c.stiffness); // Horizontal
+                if (y < c.height - 1) springs.emplace_back(&particles[idx], &particles[idx + c.width], c.stiffness); // Vertical
             }
         }
     }

@@ -1,6 +1,6 @@
 width=31
 height=31
 spacing=0.25
-stiffness=16
+stiffness=25
 particleMass=0.1
-dampingFactor=0.2
+dampingFactor=0.1

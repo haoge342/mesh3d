@@ -30,7 +30,7 @@ int main() {
 
     Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-	mesh3d::Mesh cloth = mesh3d::Mesh(loadedConfig.width, loadedConfig.height, loadedConfig.spacing, loadedConfig.stiffness, loadedConfig.particleMass, loadedConfig.dampingFactor);
+	mesh3d::Mesh cloth = mesh3d::Mesh(loadedConfig);
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
@@ -67,8 +67,9 @@ int main() {
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
-			cloth = mesh3d::Mesh(loadedConfig.width, loadedConfig.height, loadedConfig.spacing, loadedConfig.stiffness, loadedConfig.particleMass, loadedConfig.dampingFactor);
+			cloth = mesh3d::Mesh(loadedConfig);
 			msg = "Reseted!";
+			isRunning = false;
 		}
 
 		if (isRunning) {
@@ -97,7 +98,6 @@ int main() {
 		DrawText(("Animation Speed: " + formateFloat(animationSpeed) + " | Up & Down").c_str(), 20, 80, 20, BLACK);
 		DrawText(("Stiffness: " + formateFloat(loadedConfig.stiffness) + " | N -> M").c_str(), 20, 100, 20, BLACK);
 		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, 120, 20, BLACK);
-
 		EndDrawing();
 		//#endregion
     }

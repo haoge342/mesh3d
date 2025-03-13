@@ -25,7 +25,7 @@ namespace mesh3d{
 		float springStiffness = 20.0f;
 		float dampingFactor = 10.0f;
     public:
-        Mesh(int w, int h, float spacing, float stiff, float pMass, float dFactor);
+        Mesh(const Config& config);
         bool Update(float dt);
         void Draw();
         void SetStiffness(float stiff);

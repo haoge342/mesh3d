@@ -25,7 +25,14 @@ void Spring::ApplySpringForce(float dampingFactor) {
 
 	Vector3 velocityDiff = SubstractVector3(pB->velocity, pA->velocity);
 
-	const float DAMPING_FACTOR = dampingFactor; // Lower value for stability
+	float validatedDampingFactor = 0; // Lower value for stability
+
+	if (validatedDampingFactor < 0.0f || validatedDampingFactor >= 1.0f ) {
+		validatedDampingFactor = 0.0f;
+	}
+	else {
+		validatedDampingFactor = dampingFactor;
+	}
 
 	// Project velocity difference onto spring direction
 	float dampingAmount = (velocityDiff.x * delta.x +
@@ -33,7 +40,7 @@ void Spring::ApplySpringForce(float dampingFactor) {
 		velocityDiff.z * delta.z) /
 		(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z + 1e-6f); // Avoid div by zero
 
-	Vector3 dampingForce = MultiplyVector3(-DAMPING_FACTOR * dampingAmount, delta);
+	Vector3 dampingForce = MultiplyVector3(-validatedDampingFactor * dampingAmount, delta);
 
 	// **Total Force = Spring Force + Damping**
 	Vector3 totalForce = { springForce.x + dampingForce.x,
