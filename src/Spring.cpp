@@ -1,6 +1,10 @@
 #include "Spring.h"
 #include <cmath>
 
+Vector3 AddVector3(const Vector3& a, const Vector3& b) {
+	return { a.x + b.x, a.y + b.y, a.z + b.z };
+}
+
 Vector3 SubstractVector3(const Vector3& a, const Vector3& b) {
 	return { a.x - b.x, a.y - b.y, a.z - b.z };
 }
@@ -22,23 +26,12 @@ void Spring::ApplySpringForce(float dampingFactor) {
 	const Vector3 delta = SubstractVector3(currParticalsDiff, initialDiff);
 	const Vector3 springForce = MultiplyVector3(-stiffness, delta);
 
-
 	Vector3 velocityDiff = SubstractVector3(pB->velocity, pA->velocity);
 
-	const float DAMPING_FACTOR = dampingFactor; // Lower value for stability
-
 	// Project velocity difference onto spring direction
-	float dampingAmount = (velocityDiff.x * delta.x +
-		velocityDiff.y * delta.y +
-		velocityDiff.z * delta.z) /
-		(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z + 1e-6f); // Avoid div by zero
-
-	Vector3 dampingForce = MultiplyVector3(-DAMPING_FACTOR * dampingAmount, delta);
 
 	// **Total Force = Spring Force + Damping**
-	Vector3 totalForce = { springForce.x + dampingForce.x,
-						   springForce.y + dampingForce.y,
-						   springForce.z + dampingForce.z };
+	Vector3 totalForce =AddVector3( springForce, MultiplyVector3(-dampingFactor, velocityDiff)); // damping
 
 	pA->ApplyForce(MultiplyVector3(-1, totalForce)); // p1 is origin
     pB->ApplyForce(totalForce); // push/pull side pB
