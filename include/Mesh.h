@@ -12,6 +12,7 @@ namespace mesh3d{
         float stiffness = 10.0f;
         float particleMass = 1.0f;
 		float dampingFactor = 0.1f;
+		float airResistanceFactor = 0.001f;
     };
 
 	Config LoadMeshConfig(const std::string& filename);
@@ -24,11 +25,13 @@ namespace mesh3d{
         std::vector<Spring> springs;
 		float springStiffness = 20.0f;
 		float dampingFactor = 10.0f;
+		float airResistanceFactor = 0.001f;
     public:
         Mesh(const Config& config);
         bool Update(float dt);
         void Draw();
         void SetStiffness(float stiff);
 		void SetDampingFactor(float dFactor);
+		void SetAirResistanceFactor(float arFactor);
     };
 } // namespace mesh3d

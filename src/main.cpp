@@ -11,7 +11,7 @@ void DrawCoordSystem(void);
 
 std::string formateFloat(float f) {
 	char buffer[20];
-	std::sprintf(buffer, "%.2f", f);
+	std::sprintf(buffer, "%.3f", f);
 	return std::string(buffer);
 }
 
@@ -51,7 +51,13 @@ int main() {
 		// increase or decrease damping factor
 		if (IsKeyPressed(KEY_P)) { loadedConfig.dampingFactor += 0.1f; }
 		if (IsKeyPressed(KEY_O)) {
-			if (loadedConfig.dampingFactor > 0.1f) loadedConfig.dampingFactor -= 0.1f;
+			if (loadedConfig.dampingFactor >= 0.1f) loadedConfig.dampingFactor -= 0.1f;
+		}
+
+		// increase or decrease air resistance factor
+		if (IsKeyPressed(KEY_K)) { loadedConfig.airResistanceFactor += 0.001f; }
+		if (IsKeyPressed(KEY_J)) {
+			if (loadedConfig.airResistanceFactor >= 0.001f) loadedConfig.airResistanceFactor -= 0.001f;
 		}
 
 		// let mouse control camera
@@ -106,7 +112,8 @@ int main() {
 
 		DrawText(("Stiffness: " + formateFloat(loadedConfig.stiffness) + " | N -> M").c_str(), 20, screenHeight - 20*2, 20, BLACK);
 		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, screenHeight - 20*3, 20, BLACK);
-		DrawText(("Partial Mass: " + formateFloat(MASS)).c_str(), 20, screenHeight - 20 * 4, 20, BLACK);
+		DrawText(("Air Resistance Factor: " + formateFloat(loadedConfig.airResistanceFactor) + "| J -> K").c_str(), 20, screenHeight - 20 * 4, 20, BLACK);
+		DrawText(("Partial Mass: " + formateFloat(MASS)).c_str(), 20, screenHeight - 20 * 5, 20, BLACK);
 		EndDrawing();
 		//#endregion
     }
