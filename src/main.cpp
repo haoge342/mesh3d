@@ -34,16 +34,9 @@ int main() {
 
 	Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-	mesh3d::Mesh cloth(loadedConfig);
-
-	if (loadedConfig.mesh_type == mesh3d::MeshType::Regular) {
-		std::cout << "Creating Regular mesh" << std::endl;
-	}
-	else {
-		std::cout << "Creating Irregular mesh" << std::endl;
-		cloth = mesh3d::Mesh("./particles.csv", "./springs.csv", loadedConfig);
-	}
-
+	mesh3d::Mesh cloth = (loadedConfig.mesh_type == mesh3d::MeshType::Regular)
+		? mesh3d::Mesh(loadedConfig) 
+		: mesh3d::Mesh("./particles.csv", "./springs.csv", loadedConfig);
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
