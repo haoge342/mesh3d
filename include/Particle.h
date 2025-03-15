@@ -10,6 +10,7 @@ public:
     bool isFixed = false;  // Whether this particle is locked in place
 
     Particle(Vector3 pos, bool fixed = false, float mass = 1.0f);
+	//Particle(const Particle& other) = delete; // prevent copy constructor
     void ApplyForce(Vector3 f);
     void Update(float dt);
 

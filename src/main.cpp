@@ -17,6 +17,9 @@ std::string formateFloat(float f) {
 
 int main() {
 	mesh3d::Config loadedConfig = mesh3d::LoadMeshConfig("config.txt");
+
+	std::cout << "Loaded config: " << mesh3d::MeshTypeToString( loadedConfig.mesh_type ) << std::endl;
+
 	float animationSpeed = 1.0f;
 	std::string msg = "Press r to restart simulation";
 
@@ -31,13 +34,14 @@ int main() {
 
 	Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
-	mesh3d::Mesh cloth = mesh3d::Mesh(loadedConfig);
+	mesh3d::Mesh cloth(loadedConfig);
 
 	if (loadedConfig.mesh_type == mesh3d::MeshType::Regular) {
-		cloth = mesh3d::Mesh(loadedConfig);
+		std::cout << "Creating Regular mesh" << std::endl;
 	}
-	else if(loadedConfig.mesh_type == mesh3d::MeshType::Irregular) {
-		cloth = mesh3d::Mesh(loadedConfig);
+	else {
+		std::cout << "Creating Irregular mesh" << std::endl;
+		cloth = mesh3d::Mesh("./particles.csv", "./springs.csv", loadedConfig);
 	}
 
 
@@ -102,16 +106,16 @@ int main() {
 		}
 
 		//#region Draw
-        BeginDrawing();
+		BeginDrawing();
 
-        ClearBackground(RAYWHITE);
+		ClearBackground(RAYWHITE);
 
-        BeginMode3D(camera);
+		BeginMode3D(camera);
 		DrawCoordSystem();
-        cloth.Draw();
-        EndMode3D();
+		cloth.Draw();
+		EndMode3D();
 
-        // Text
+		// Text
 		DrawText(isRunning ? "Running..." : "Paused (Press Enter/Space to continue)", 20, 20, 20, RED);
 		DrawText(msg.c_str(), 20, 20*2, 20, BLACK);
 		DrawText(("FPS: " + formateFloat(GetFPS())).c_str(), 20, 20*4, 20, BLACK);
@@ -125,19 +129,19 @@ int main() {
 		DrawText(("Mesh type: " + mesh3d::MeshTypeToString(loadedConfig.mesh_type)).c_str(), 20, screenHeight - 20 * 6, 20, BLACK);
 		EndDrawing();
 		//#endregion
-    }
+	}
 
-    CloseWindow();
-    return 0;
+	CloseWindow();
+	return 0;
 }
 
 void DrawCoordSystem() {
-    const float  AXIS_LENGTH = 10.0f;
+	const float  AXIS_LENGTH = 10.0f;
 
 	DrawGrid(10, 1.0f);
 
 	DrawLine3D({ 0, 0, 0 }, { AXIS_LENGTH, 0, 0 }, MAROON); // x
-    DrawLine3D({ 0, 0, 0 }, { -AXIS_LENGTH, 0, 0 }, LIGHTGRAY); // -x
+	DrawLine3D({ 0, 0, 0 }, { -AXIS_LENGTH, 0, 0 }, LIGHTGRAY); // -x
 	DrawLine3D({ 0, 0, 0 }, { 0, AXIS_LENGTH, 0 }, DARKGREEN); // y
 	DrawLine3D({ 0, 0, 0 }, { 0, -AXIS_LENGTH, 0 }, LIGHTGRAY); // -y
 	DrawLine3D({ 0, 0, 0 }, { 0, 0, AXIS_LENGTH }, DARKBLUE); // z

@@ -24,6 +24,9 @@ namespace mesh3d{
 
 	Config LoadMeshConfig(const std::string& filename);
 	void WriteConfig(const std::string& filename, const Config& config);
+
+	std::vector<Particle> LoadParticles(const std::string& filename, float pMass);
+	std::vector<Spring> LoadSprings(const std::string& filename, std::vector<Particle>& particles);
     
     class Mesh {
     private:
@@ -35,7 +38,7 @@ namespace mesh3d{
 		float airResistanceFactor = 0.001f;
     public:
         Mesh(const Config& config);
-		Mesh(const std::vector<Particle>& particles, const std::vector<Spring>& springs, const Config& config);
+		Mesh(const std::string& pFileName, const std::string& sFileName, const Config& config);
         bool Update(float dt);
         void Draw();
         void SetStiffness(float stiff);
