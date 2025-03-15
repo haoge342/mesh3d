@@ -53,7 +53,7 @@ namespace mesh3d {
 
 			iss >> x >> comma >> y >> comma >> z >> comma >> fixed;
 
-			particles.emplace_back(Vector3{ x, y, z }, fixed=="true", pMass);
+			particles.emplace_back(Vector3{ y, z, x }, fixed=="true", pMass);
 		}
 
 		std::cout << "Finished loading particles" << std::endl;
@@ -221,7 +221,8 @@ namespace mesh3d {
         }
 
 		for (auto& particle : particles) {
-			DrawSphere(particle.position, 0.1f, RED);
+			const auto COLOR = particle.isFixed ? DARKGREEN : ORANGE;
+			DrawSphere(particle.position, 0.1f, COLOR);
 		}
     }
 }

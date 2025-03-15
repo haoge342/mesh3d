@@ -91,7 +91,15 @@ int main() {
 
 		// restart simulation
 		if (IsKeyPressed(KEY_R)) { 
-			cloth = mesh3d::Mesh(loadedConfig);
+			if (loadedConfig.mesh_type == mesh3d::MeshType::Regular) {
+				std::cout << "Reseting Regular mesh" << std::endl;
+				cloth = mesh3d::Mesh(loadedConfig);
+			}
+			else {
+				std::cout << "Reseting Irregular mesh" << std::endl;
+				cloth = mesh3d::Mesh("./particles.csv", "./springs.csv", loadedConfig);
+			}
+
 			msg = "Reseted!";
 			isRunning = false;
 		}
