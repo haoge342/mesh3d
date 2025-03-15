@@ -10,6 +10,20 @@
 const float HEIGHT = 0.0f;
 
 namespace mesh3d {
+	std::string MeshTypeToString(MeshType type) {
+		switch (type) {
+			case MeshType::Regular: return "regular";
+			case MeshType::Irregular: return "irregular";
+			default: return "unknown";
+		}
+	}
+
+	MeshType StringToMeshType(const std::string& type) {
+		if (type == "regular") return MeshType::Regular;
+		if (type == "irregular") return MeshType::Irregular;
+		return MeshType::Regular;
+	}
+
 	Config LoadMeshConfig(const std::string& filename) {
 		Config config;
 		std::ifstream file(filename);
@@ -27,6 +41,7 @@ namespace mesh3d {
 					else if (key == "particleMass") config.particleMass = std::stof(value);
 					else if (key == "dampingFactor") config.dampingFactor = std::stof(value);
 					else if (key == "airResistanceFactor") config.airResistanceFactor = std::stof(value);
+					else if (key == "mesh_type") config.mesh_type = StringToMeshType(value);
 				}
 			}
 		}
@@ -35,6 +50,7 @@ namespace mesh3d {
 
     void WriteConfig(const std::string& filename, const Config& config) {
         std::ofstream file(filename);
+		file << "mesh_type=" << MeshTypeToString(config.mesh_type) << "\n";
 		file << "width=" << config.width << "\n";
         file << "height=" << config.height << "\n";
         file << "spacing=" << config.spacing << "\n";
@@ -44,6 +60,7 @@ namespace mesh3d {
 		file << "airResistanceFactor=" << config.airResistanceFactor << "\n";
     }
 
+	// regular mesh
     Mesh::Mesh(const Config& c): width(c.width), height(c.height), springStiffness(c.stiffness), dampingFactor(c.dampingFactor), airResistanceFactor(c.airResistanceFactor) {
         const Vector3 ORIGIN = { (c.width - 1) * c.spacing / 2, HEIGHT, (c.height - 1) * c.spacing / 2 };
 
@@ -67,6 +84,9 @@ namespace mesh3d {
             }
         }
     }
+
+	// irregular mesh
+	Mesh::Mesh(const std::vector<Particle>& p, const std::vector<Spring>& s, const Config& c) : particles(p), springs(s), width(c.width), height(c.height), springStiffness(c.stiffness), dampingFactor(c.dampingFactor), airResistanceFactor(c.airResistanceFactor) {}
 
     bool Mesh::Update(float dt) {
         if (dt <= 0.0f) return true;

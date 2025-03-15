@@ -26,12 +26,20 @@ int main() {
 	bool isRunning = false;
 	bool isCameraFree = true;
 
-    InitWindow(screenWidth, screenHeight, "3D Cloth Simulation");
+	InitWindow(screenWidth, screenHeight, "3D Cloth Simulation");
 	SetMousePosition(screenWidth / 2, screenHeight / 2);
 
-    Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
+	Camera camera = { { 15.0f, 15.0f, 15.0f }, { 0.0f, -2.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, 60.0f, CAMERA_PERSPECTIVE };
 
 	mesh3d::Mesh cloth = mesh3d::Mesh(loadedConfig);
+
+	if (loadedConfig.mesh_type == mesh3d::MeshType::Regular) {
+		cloth = mesh3d::Mesh(loadedConfig);
+	}
+	else if(loadedConfig.mesh_type == mesh3d::MeshType::Irregular) {
+		cloth = mesh3d::Mesh(loadedConfig);
+	}
+
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) { isRunning = !isRunning; };
@@ -114,6 +122,7 @@ int main() {
 		DrawText(("Damping Factor: " + formateFloat(loadedConfig.dampingFactor) + " | O -> P").c_str(), 20, screenHeight - 20*3, 20, BLACK);
 		DrawText(("Air Resistance Factor: " + formateFloat(loadedConfig.airResistanceFactor) + "| J -> K").c_str(), 20, screenHeight - 20 * 4, 20, BLACK);
 		DrawText(("Partial Mass: " + formateFloat(MASS)).c_str(), 20, screenHeight - 20 * 5, 20, BLACK);
+		DrawText(("Mesh type: " + mesh3d::MeshTypeToString(loadedConfig.mesh_type)).c_str(), 20, screenHeight - 20 * 6, 20, BLACK);
 		EndDrawing();
 		//#endregion
     }

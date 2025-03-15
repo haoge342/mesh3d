@@ -1,3 +1,4 @@
+mesh_type=regular
 width=31
 height=31
 spacing=0.25
